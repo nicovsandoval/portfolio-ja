@@ -1,0 +1,114 @@
+{
+  "nav": {
+    "about": "Perfil",
+    "skills": "Habilidades",
+    "experience": "Experiencia",
+    "education": "Educación",
+    "impact": "Impacto",
+    "contact": "Contáctame"
+  },
+  "hero": {
+    "titleName": "Julio César Álvarez Gallo",
+    "role": "Analista de Riesgo & Planeación Financiera",
+    "location": "Medellín, Colombia",
+    "tagline": "Transformo datos en decisiones: optimizo procesos, automatizo reportes y hago visible el riesgo para impulsar la estrategia.",
+    "ctaPrimary": "Contáctame",
+    "ctaSecondary": "Ver LinkedIn",
+    "ctaCV": "Descargar CV"
+  },
+  "about": {
+    "heading": "Perfil profesional",
+    "body": "Administrador de Empresas con más de 2 años de experiencia en análisis de riesgo de crédito, planeación financiera y business intelligence en el sector bancario. Domino Power BI, Excel avanzado, SQL y Python (pandas, numpy) para optimizar procesos, automatizar reportes y construir indicadores que mejoran la visibilidad de KPIs y la precisión de la información.",
+    "highlightsTitle": "Enfoque y fortalezas",
+    "highlights": [
+      "Automatización y mejora continua con enfoque en eficiencia operativa.",
+      "Modelado y análisis de datos para riesgo de crédito y métricas estratégicas.",
+      "Comunicación clara y documentación para acelerar adopción y aprendizaje."
+    ]
+  },
+  "skills": {
+    "heading": "Habilidades",
+    "subtitle": "Herramientas y competencias aplicadas a riesgo, planeación y analítica.",
+    "groups": {
+      "data": "Datos & Analítica",
+      "tools": "Herramientas",
+      "methods": "Métodos",
+      "soft": "Habilidades clave"
+    },
+    "items": {
+      "Excel": "Excel (avanzado)",
+      "Power BI": "Power BI (dashboards, KPIs)",
+      "SQL": "SQL (SELECT, JOINS, subqueries)",
+      "Python": "Python (pandas, numpy, ETL básico)",
+      "Power Apps": "Power Apps",
+      "Scrum": "Scrum / Agile",
+      "Credit Risk Analysis": "Análisis de Riesgo de Crédito",
+      "Financial Planning": "Planeación Financiera",
+      "Communication": "Comunicación efectiva",
+      "Teamwork": "Trabajo en equipo",
+      "Critical Thinking": "Pensamiento crítico"
+    }
+  },
+  "experience": {
+    "heading": "Experiencia"
+  },
+  "education": {
+    "heading": "Educación y cursos",
+    "coursesTitle": "Cursos"
+  },
+  "impact": {
+    "heading": "Impacto destacado",
+    "subtitle": "Resultados medibles en automatización, analítica y eficiencia operativa.",
+    "cards": [
+      {
+        "title": "Automatización de modelos de riesgo",
+        "body": "Estandaricé y optimicé procesos de evaluación con SQL y Power BI, logrando una reducción del 5% en tiempos de procesamiento para Pyme.",
+        "metric": "-5% tiempo de procesamiento"
+      },
+      {
+        "title": "Reportes más rápidos y confiables",
+        "body": "Implementé flujos de extracción y limpieza con Python (ETL básico) para acelerar la preparación mensual y reducir reprocesos.",
+        "metric": "-20% tiempo de preparación"
+      },
+      {
+        "title": "Visibilidad de KPIs a escala",
+        "body": "Construí dashboards en Power BI consumidos por más de 30 usuarios internos, elevando la transparencia de indicadores estratégicos.",
+        "metric": "30+ usuarios"
+      },
+      {
+        "title": "Eficiencia operativa con enfoque ágil",
+        "body": "Coordiné iniciativas de transformación digital con equipos ágiles, incrementando la eficiencia en flujos de riesgo.",
+        "metric": "+12% eficiencia"
+      },
+      {
+        "title": "Onboarding acelerado",
+        "body": "Documenté procesos y manuales para reducir fricción de aprendizaje y acelerar la incorporación de nuevos analistas.",
+        "metric": "+30% onboarding"
+      },
+      {
+        "title": "Mejor precisión de reportes",
+        "body": "Integré datos financieros y de riesgo para fortalecer consistencia y calidad de reportes estratégicos.",
+        "metric": "+18% precisión"
+      }
+    ]
+  },
+  "contact": {
+    "heading": "Contáctame",
+    "body": "Si buscas un perfil orientado a resultados en riesgo, planeación y analítica, conversemos. Estoy disponible para roles donde la claridad de datos y la eficiencia operativa marquen la diferencia.",
+    "buttons": {
+      "email": "Enviar email",
+      "linkedin": "Abrir LinkedIn",
+      "phoneReveal": "Mostrar teléfono"
+    },
+    "note": "Respuesta rápida por correo y LinkedIn."
+  },
+  "footer": {
+    "text": "© {{year}} Julio César Álvarez Gallo. Portafolio profesional."
+  },
+  "aria": {
+    "toggleTheme": "Cambiar tema",
+    "toggleLanguage": "Cambiar idioma",
+    "navigation": "Navegación principal",
+    "scrollToSection": "Ir a sección {{section}}"
+  }
+}

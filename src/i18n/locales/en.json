@@ -1,0 +1,114 @@
+{
+  "nav": {
+    "about": "About",
+    "skills": "Skills",
+    "experience": "Experience",
+    "education": "Education",
+    "impact": "Impact",
+    "contact": "Contact"
+  },
+  "hero": {
+    "titleName": "Julio César Álvarez Gallo",
+    "role": "Risk & Financial Planning Analyst",
+    "location": "Medellín, Colombia",
+    "tagline": "I turn data into decisions: streamlining processes, automating reporting, and making risk visible to drive strategy.",
+    "ctaPrimary": "Contact me",
+    "ctaSecondary": "View LinkedIn",
+    "ctaCV": "Download CV"
+  },
+  "about": {
+    "heading": "Professional profile",
+    "body": "Business Administrator with 2+ years of experience in credit risk analysis, financial planning, and business intelligence in the banking sector. Proficient in Power BI, advanced Excel, SQL, and Python (pandas, numpy) to optimize processes, automate reporting, and deliver KPI visibility with improved accuracy.",
+    "highlightsTitle": "Focus & strengths",
+    "highlights": [
+      "Automation and continuous improvement with an efficiency-first mindset.",
+      "Data modeling and analytics for credit risk and strategic metrics.",
+      "Clear communication and documentation that accelerates adoption and learning."
+    ]
+  },
+  "skills": {
+    "heading": "Skills",
+    "subtitle": "Tools and capabilities applied to risk, planning, and analytics.",
+    "groups": {
+      "data": "Data & Analytics",
+      "tools": "Tools",
+      "methods": "Methods",
+      "soft": "Core strengths"
+    },
+    "items": {
+      "Excel": "Excel (advanced)",
+      "Power BI": "Power BI (dashboards, KPIs)",
+      "SQL": "SQL (SELECT, JOINS, subqueries)",
+      "Python": "Python (pandas, numpy, basic ETL)",
+      "Power Apps": "Power Apps",
+      "Scrum": "Scrum / Agile",
+      "Credit Risk Analysis": "Credit Risk Analysis",
+      "Financial Planning": "Financial Planning",
+      "Communication": "Effective communication",
+      "Teamwork": "Teamwork",
+      "Critical Thinking": "Critical thinking"
+    }
+  },
+  "experience": {
+    "heading": "Experience"
+  },
+  "education": {
+    "heading": "Education & courses",
+    "coursesTitle": "Courses"
+  },
+  "impact": {
+    "heading": "Impact highlights",
+    "subtitle": "Measurable results across automation, analytics, and operational efficiency.",
+    "cards": [
+      {
+        "title": "Risk model automation",
+        "body": "Standardized and optimized evaluation workflows with SQL and Power BI, achieving faster processing for SME clients.",
+        "metric": "-5% processing time"
+      },
+      {
+        "title": "Faster, cleaner reporting",
+        "body": "Built basic ETL workflows in Python to speed up monthly preparation and reduce manual effort.",
+        "metric": "-20% prep time"
+      },
+      {
+        "title": "KPI visibility at scale",
+        "body": "Delivered Power BI dashboards used by 30+ internal users to improve transparency of strategic indicators.",
+        "metric": "30+ users"
+      },
+      {
+        "title": "Agile efficiency gains",
+        "body": "Coordinated digital transformation initiatives with agile teams to streamline risk workflows.",
+        "metric": "+12% efficiency"
+      },
+      {
+        "title": "Accelerated onboarding",
+        "body": "Created clear documentation and training manuals to reduce ramp-up time for new analysts.",
+        "metric": "+30% onboarding"
+      },
+      {
+        "title": "Higher reporting accuracy",
+        "body": "Integrated financial and risk data sources to strengthen consistency and strategic reporting quality.",
+        "metric": "+18% accuracy"
+      }
+    ]
+  },
+  "contact": {
+    "heading": "Contact",
+    "body": "If you need a results-driven profile in risk, planning, and analytics, let's talk. I'm open to roles where data clarity and operational efficiency make the difference.",
+    "buttons": {
+      "email": "Send email",
+      "linkedin": "Open LinkedIn",
+      "phoneReveal": "Show phone"
+    },
+    "note": "Fast response via email and LinkedIn."
+  },
+  "footer": {
+    "text": "© {{year}} Julio César Álvarez Gallo. Professional portfolio."
+  },
+  "aria": {
+    "toggleTheme": "Toggle theme",
+    "toggleLanguage": "Toggle language",
+    "navigation": "Main navigation",
+    "scrollToSection": "Scroll to {{section}} section"
+  }
+}
