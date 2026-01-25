@@ -5,7 +5,16 @@
     "experience": "Experiencia",
     "education": "Educación",
     "impact": "Impacto",
-    "contact": "Contáctame"
+    "contact": "Contáctame",
+    "mobile": {
+      "about": "Perfil",
+      "experience": "Experiencia",
+      "impact": "Impacto",
+      "contact": "Contacto",
+      "skills": "Habilidades",
+      "education": "Educación",
+      "more": "Más"
+    }
   },
   "hero": {
     "titleName": "Julio César Álvarez Gallo",
@@ -109,6 +118,8 @@
     "toggleTheme": "Cambiar tema",
     "toggleLanguage": "Cambiar idioma",
     "navigation": "Navegación principal",
-    "scrollToSection": "Ir a sección {{section}}"
+    "scrollToSection": "Ir a sección {{section}}",
+    "moreNavigation": "Más secciones",
+    "closeMenu": "Cerrar menú"
   }
 }
