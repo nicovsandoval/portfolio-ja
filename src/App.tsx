@@ -7,6 +7,7 @@ import { Education } from './components/Education';
 import { Impact } from './components/Impact';
 import { Contact } from './components/Contact';
 import { Footer } from './components/Footer';
+import { ViewportBadge } from './components/ViewportBadge';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
       <Impact />
       <Contact />
       <Footer />
+      {import.meta.env.DEV && <ViewportBadge />}
     </div>
   );
 }
