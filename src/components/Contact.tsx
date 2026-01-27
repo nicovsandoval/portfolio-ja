@@ -2,11 +2,13 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useReducedMotion } from '../hooks/useReducedMotion';
+import { useLanguage } from '../hooks/useLanguage';
 import { personalInfo } from '../content/cvData';
 
 export function Contact() {
   const { t } = useTranslation();
   const prefersReducedMotion = useReducedMotion();
+  const { language } = useLanguage();
   const [phoneRevealed, setPhoneRevealed] = useState(false);
 
   const handleEmailClick = () => {
@@ -22,6 +24,9 @@ export function Contact() {
   };
 
   const maskedPhone = phoneRevealed ? personalInfo.phone : `+57 311 ••• ••••`;
+  const cvHref =
+    language === 'es' ? '/cv/CV-Julio-ES.pdf' : '/cv/CV-Julio-EN.pdf';
+  const cvFileName = language === 'es' ? 'CV-Julio-ES.pdf' : 'CV-Julio-EN.pdf';
 
   return (
     <section className="py-20 px-4 bg-light-surface dark:bg-dark-surface">
@@ -63,13 +68,34 @@ export function Contact() {
 
             <button
               onClick={handleLinkedInClick}
-              className="flex items-center gap-2 px-6 py-3 border-2 border-light-primary dark:border-dark-primary text-light-primary dark:text-dark-primary rounded-full font-medium hover:bg-light-primary dark:hover:bg-dark-primary hover:text-white transition-colors"
+              className="flex items-center gap-2 px-6 py-3 border-2 border-light-primary dark:border-dark-primary text-light-primary dark:text-dark-primary rounded-full font-medium hover:bg-light-primary dark:hover:bg-dark-primary hover:text-white dark:hover:text-white active:bg-light-primary/90 dark:active:bg-dark-primary/90 active:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-light-primary dark:focus-visible:ring-dark-primary focus-visible:ring-offset-2 focus-visible:ring-offset-light-bg dark:focus-visible:ring-offset-dark-bg transition-colors"
             >
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
               </svg>
               {t('contact.buttons.linkedin')}
             </button>
+
+            <a
+              href={cvHref}
+              download={cvFileName}
+              className="flex items-center gap-2 px-6 py-3 border-2 border-light-primary/70 dark:border-dark-primary/70 text-light-primary dark:text-dark-primary rounded-full font-medium hover:bg-light-primary dark:hover:bg-dark-primary hover:text-white dark:hover:text-white active:bg-light-primary/90 dark:active:bg-dark-primary/90 active:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-light-primary dark:focus-visible:ring-dark-primary focus-visible:ring-offset-2 focus-visible:ring-offset-light-bg dark:focus-visible:ring-offset-dark-bg transition-colors"
+            >
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 16l4-4m0 0l-4-4m4 4H8m4 8a9 9 0 110-18 9 9 0 010 18z"
+                />
+              </svg>
+              {t('contact.buttons.downloadCv')}
+            </a>
 
             <button
               onClick={handlePhoneReveal}

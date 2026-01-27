@@ -25,7 +25,7 @@ export function Hero() {
           transition={{ duration: prefersReducedMotion ? 0 : 0.6 }}
           className="mb-6"
         >
-          <div className="w-32 h-32 mx-auto mb-6 rounded-full overflow-hidden bg-light-border dark:bg-dark-border">
+          <div className="w-32 h-32 mx-auto mb-6 rounded-full overflow-hidden bg-light-surface dark:bg-dark-surface ring-2 ring-light-border/80 dark:ring-dark-border/70 ring-offset-2 ring-offset-light-bg dark:ring-offset-dark-bg shadow-[0_8px_24px_rgba(15,23,42,0.15)] dark:shadow-[0_8px_24px_rgba(0,0,0,0.45)]">
             <img
               src="/avatar.jpg"
               alt={personalInfo.name}
@@ -82,7 +82,7 @@ export function Hero() {
             href={personalInfo.linkedin}
             target="_blank"
             rel="noopener noreferrer"
-            className="px-8 py-3 border-2 border-light-primary dark:border-dark-primary text-light-primary dark:text-dark-primary rounded-full font-medium hover:bg-light-primary dark:hover:bg-dark-primary hover:text-white transition-colors"
+            className="px-8 py-3 border-2 border-light-primary dark:border-dark-primary text-light-primary dark:text-dark-primary rounded-full font-medium hover:bg-light-primary dark:hover:bg-dark-primary hover:text-white dark:hover:text-white active:bg-light-primary/90 dark:active:bg-dark-primary/90 active:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-light-primary dark:focus-visible:ring-dark-primary focus-visible:ring-offset-2 focus-visible:ring-offset-light-bg dark:focus-visible:ring-offset-dark-bg transition-colors"
           >
             {t('hero.ctaSecondary')}
           </a>

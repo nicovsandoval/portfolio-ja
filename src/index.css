@@ -161,6 +161,14 @@ body {
   );
 }
 
+.nav-active-pill {
+  transition:
+    transform 240ms ease-out,
+    width 240ms ease-out,
+    height 240ms ease-out;
+  will-change: transform, width, height;
+}
+
 .dark .fade-edges::before {
   background: linear-gradient(
     to right,

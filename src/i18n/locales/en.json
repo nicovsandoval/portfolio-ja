@@ -97,6 +97,7 @@
     "buttons": {
       "email": "Send email",
       "linkedin": "Open LinkedIn",
+      "downloadCv": "Download CV",
       "phoneReveal": "Show phone"
     },
     "note": "Fast response via email and LinkedIn."

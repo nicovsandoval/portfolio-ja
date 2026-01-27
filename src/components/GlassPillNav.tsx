@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import type { Dispatch, MutableRefObject, SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { createPortal } from 'react-dom';
@@ -10,6 +11,14 @@ interface NavItem {
   id: string;
   label: string;
 }
+
+type Indicator = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  visible: boolean;
+};
 
 export function GlassPillNav() {
   const { t } = useTranslation();
@@ -26,7 +35,26 @@ export function GlassPillNav() {
   const [overflowItems, setOverflowItems] = useState<NavItem[]>([]);
   const pillRef = useRef<HTMLDivElement>(null);
   const mobileNavRef = useRef<HTMLDivElement>(null);
+  const desktopNavRef = useRef<HTMLDivElement>(null);
   const measureRef = useRef<HTMLDivElement>(null);
+  const desktopMeasureFrame = useRef<number | null>(null);
+  const mobileMeasureFrame = useRef<number | null>(null);
+  const activeSectionRef = useRef(activeSection);
+
+  const [desktopIndicator, setDesktopIndicator] = useState({
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0,
+    visible: false,
+  });
+  const [mobileIndicator, setMobileIndicator] = useState({
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0,
+    visible: false,
+  });
 
   const navItems = useMemo<NavItem[]>(
     () => [
@@ -49,6 +77,64 @@ export function GlassPillNav() {
     ],
     [t]
   );
+
+  const moreLabel = t('nav.more');
+  const mobileItems = visibleItems.length > 0 ? visibleItems : navItems;
+  const showMoreButton = isXs && overflowItems.length > 0;
+  const overflowHasActive = overflowItems.some(
+    (item) => item.id === activeSection
+  );
+
+  useEffect(() => {
+    activeSectionRef.current = activeSection;
+  }, [activeSection]);
+
+  const scheduleIndicatorMeasure = (
+    container: HTMLDivElement | null,
+    activeId: string,
+    setIndicator: Dispatch<SetStateAction<Indicator>>,
+    frameRef: MutableRefObject<number | null>
+  ) => {
+    if (!container) return;
+    if (frameRef.current) {
+      cancelAnimationFrame(frameRef.current);
+    }
+    frameRef.current = requestAnimationFrame(() => {
+      const target = container.querySelector<HTMLElement>(
+        `[data-nav-id="${activeId}"]`
+      );
+
+      if (!target) {
+        setIndicator((prev) =>
+          prev.visible ? { ...prev, visible: false } : prev
+        );
+        return;
+      }
+
+      const containerRect = container.getBoundingClientRect();
+      const targetRect = target.getBoundingClientRect();
+      const next = {
+        x: targetRect.left - containerRect.left,
+        y: targetRect.top - containerRect.top,
+        width: targetRect.width,
+        height: targetRect.height,
+        visible: true,
+      };
+
+      setIndicator((prev) => {
+        if (
+          prev.x === next.x &&
+          prev.y === next.y &&
+          prev.width === next.width &&
+          prev.height === next.height &&
+          prev.visible === next.visible
+        ) {
+          return prev;
+        }
+        return next;
+      });
+    });
+  };
 
   useEffect(() => {
     const sections = navItems
@@ -108,6 +194,82 @@ export function GlassPillNav() {
     setIsXs(mediaQuery.matches);
     mediaQuery.addEventListener('change', handleChange);
     return () => mediaQuery.removeEventListener('change', handleChange);
+  }, []);
+
+  useEffect(() => {
+    const container = desktopNavRef.current;
+    if (!container) return;
+    scheduleIndicatorMeasure(
+      container,
+      activeSection,
+      setDesktopIndicator,
+      desktopMeasureFrame
+    );
+  }, [activeSection, navItems]);
+
+  useEffect(() => {
+    const container = mobileNavRef.current;
+    if (!container) return;
+    const activeId =
+      showMoreButton && overflowHasActive ? 'more' : activeSection;
+    scheduleIndicatorMeasure(
+      container,
+      activeId,
+      setMobileIndicator,
+      mobileMeasureFrame
+    );
+  }, [activeSection, overflowHasActive, showMoreButton, visibleItems]);
+
+  useEffect(() => {
+    const desktopContainer = desktopNavRef.current;
+    const mobileContainer = mobileNavRef.current;
+
+    if (!desktopContainer && !mobileContainer) return;
+
+    const handleResize = () => {
+      if (desktopContainer) {
+        scheduleIndicatorMeasure(
+          desktopContainer,
+          activeSectionRef.current,
+          setDesktopIndicator,
+          desktopMeasureFrame
+        );
+      }
+
+      if (mobileContainer) {
+        const activeId =
+          showMoreButton && overflowHasActive
+            ? 'more'
+            : activeSectionRef.current;
+        scheduleIndicatorMeasure(
+          mobileContainer,
+          activeId,
+          setMobileIndicator,
+          mobileMeasureFrame
+        );
+      }
+    };
+
+    const resizeObserver = new ResizeObserver(handleResize);
+    if (desktopContainer) resizeObserver.observe(desktopContainer);
+    if (mobileContainer) resizeObserver.observe(mobileContainer);
+
+    window.addEventListener('resize', handleResize);
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [overflowHasActive, showMoreButton]);
+
+  useEffect(() => {
+    return () => {
+      if (desktopMeasureFrame.current) {
+        cancelAnimationFrame(desktopMeasureFrame.current);
+      }
+      if (mobileMeasureFrame.current) {
+        cancelAnimationFrame(mobileMeasureFrame.current);
+      }
+    };
   }, []);
 
   useEffect(() => {
@@ -212,13 +374,6 @@ export function GlassPillNav() {
     scrollToSection(id);
   };
 
-  const moreLabel = t('nav.more');
-  const mobileItems = visibleItems.length > 0 ? visibleItems : navItems;
-  const showMoreButton = isXs && overflowItems.length > 0;
-  const overflowHasActive = overflowItems.some(
-    (item) => item.id === activeSection
-  );
-
   const moreMenuPortal =
     isMoreOpen && showMoreButton
       ? createPortal(
@@ -289,12 +444,24 @@ export function GlassPillNav() {
             {/* Mobile Navigation */}
             <div
               ref={mobileNavRef}
-              className="flex items-center justify-evenly gap-2 max-[360px]:gap-1.5 max-[320px]:gap-1 flex-nowrap md:hidden w-full"
+              className="relative flex items-center justify-evenly gap-2 max-[360px]:gap-1.5 max-[320px]:gap-1 flex-nowrap md:hidden w-full"
             >
+              {mobileIndicator.visible && (
+                <div
+                  aria-hidden
+                  className="nav-active-pill absolute left-0 top-0 -z-10 rounded-full bg-light-primary/95 dark:bg-dark-primary/90 shadow-sm pointer-events-none"
+                  style={{
+                    transform: `translate3d(${mobileIndicator.x}px, ${mobileIndicator.y}px, 0)`,
+                    width: mobileIndicator.width,
+                    height: mobileIndicator.height,
+                  }}
+                />
+              )}
               {mobileItems.map((item) => (
                 <button
                   key={item.id}
                   onClick={() => handleMobileNavClick(item.id)}
+                  data-nav-id={item.id}
                   className={`
                     relative flex-shrink-0 px-2.5 py-2 max-[360px]:px-2 max-[320px]:px-1.5 max-[360px]:py-1.5 rounded-full text-sm font-semibold transition-all whitespace-nowrap
                     ${
@@ -307,23 +474,13 @@ export function GlassPillNav() {
                     section: item.label,
                   })}
                 >
-                  {activeSection === item.id && (
-                    <motion.div
-                      layoutId="activeSectionMobile"
-                      className="absolute inset-0 bg-light-primary/95 dark:bg-dark-primary/90 rounded-full -z-10 shadow-sm"
-                      transition={{
-                        type: 'spring',
-                        stiffness: 380,
-                        damping: 30,
-                      }}
-                    />
-                  )}
                   {item.label}
                 </button>
               ))}
               {showMoreButton && (
                 <button
                   onClick={() => setIsMoreOpen((prev) => !prev)}
+                  data-nav-id="more"
                   className={`
                     relative flex-shrink-0 px-2.5 py-2 max-[360px]:px-2 max-[320px]:px-1.5 max-[360px]:py-1.5 rounded-full text-sm font-semibold transition-all whitespace-nowrap
                     ${
@@ -336,17 +493,6 @@ export function GlassPillNav() {
                   aria-expanded={isMoreOpen}
                   aria-haspopup="menu"
                 >
-                  {(isMoreOpen || overflowHasActive) && (
-                    <motion.div
-                      layoutId="moreMenuToggle"
-                      className="absolute inset-0 bg-light-primary/95 dark:bg-dark-primary/90 rounded-full -z-10 shadow-sm"
-                      transition={{
-                        type: 'spring',
-                        stiffness: 380,
-                        damping: 30,
-                      }}
-                    />
-                  )}
                   {moreLabel}
                 </button>
               )}
@@ -377,11 +523,26 @@ export function GlassPillNav() {
 
             {/* Desktop Navigation items */}
             <div className="hidden md:flex flex-1 sm:flex-shrink min-w-0 overflow-x-auto no-scrollbar fade-edges">
-              <div className="flex items-center justify-center gap-1 flex-nowrap px-3">
+              <div
+                ref={desktopNavRef}
+                className="relative flex items-center justify-center gap-1 flex-nowrap px-3"
+              >
+                {desktopIndicator.visible && (
+                  <div
+                    aria-hidden
+                    className="nav-active-pill absolute left-0 top-0 -z-10 rounded-full bg-light-primary/95 dark:bg-dark-primary/90 shadow-sm pointer-events-none"
+                    style={{
+                      transform: `translate3d(${desktopIndicator.x}px, ${desktopIndicator.y}px, 0)`,
+                      width: desktopIndicator.width,
+                      height: desktopIndicator.height,
+                    }}
+                  />
+                )}
                 {navItems.map((item) => (
                   <button
                     key={item.id}
                     onClick={() => scrollToSection(item.id)}
+                    data-nav-id={item.id}
                     className={`
                     relative flex-shrink-0 px-2.5 sm:px-3 md:px-4 py-1.5 sm:py-1.5 md:py-2 rounded-full text-sm sm:text-sm font-medium transition-all whitespace-nowrap
                     ${
@@ -394,17 +555,6 @@ export function GlassPillNav() {
                       section: item.label,
                     })}
                   >
-                    {activeSection === item.id && (
-                      <motion.div
-                        layoutId="activeSection"
-                        className="absolute inset-0 bg-light-primary/95 dark:bg-dark-primary/90 rounded-full -z-10 shadow-sm"
-                        transition={{
-                          type: 'spring',
-                          stiffness: 380,
-                          damping: 30,
-                        }}
-                      />
-                    )}
                     {item.label}
                   </button>
                 ))}
