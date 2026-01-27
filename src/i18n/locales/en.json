@@ -1,20 +1,10 @@
 {
   "nav": {
     "about": "About",
-    "skills": "Skills",
-    "experience": "Experience",
-    "education": "Education",
+    "journey": "Journey",
     "impact": "Impact",
     "contact": "Contact",
-    "mobile": {
-      "about": "About",
-      "experience": "Exp.",
-      "impact": "Impact",
-      "contact": "Contact",
-      "skills": "Skills",
-      "education": "Education",
-      "more": "More"
-    }
+    "more": "More"
   },
   "hero": {
     "titleName": "Julio César Álvarez Gallo",

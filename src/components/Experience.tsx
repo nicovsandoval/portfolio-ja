@@ -9,7 +9,7 @@ export function Experience() {
   const currentLang = i18n.language.startsWith('es') ? 'es' : 'en';
 
   return (
-    <section id="experience" className="py-20 px-4">
+    <section className="py-20 px-4">
       <div className="max-w-4xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -54,7 +54,9 @@ export function Experience() {
                       key={index}
                       className="flex items-start gap-2 text-light-textMuted dark:text-dark-textMuted"
                     >
-                      <span className="text-light-accent dark:text-dark-accent mt-1.5">•</span>
+                      <span className="text-light-accent dark:text-dark-accent mt-1.5">
+                        •
+                      </span>
                       <span>{achievement}</span>
                     </li>
                   ))}

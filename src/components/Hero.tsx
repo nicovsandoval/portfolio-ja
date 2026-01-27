@@ -10,15 +10,14 @@ export function Hero() {
   const scrollToContact = () => {
     const element = document.getElementById('contact');
     if (element) {
-      element.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth' });
+      element.scrollIntoView({
+        behavior: prefersReducedMotion ? 'auto' : 'smooth',
+      });
     }
   };
 
   return (
-    <section
-      id="hero"
-      className="min-h-screen flex items-center justify-center px-4 pt-24 pb-16"
-    >
+    <section className="min-h-screen flex items-center justify-center px-4 pt-24 pb-16">
       <div className="max-w-4xl mx-auto text-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -54,7 +53,10 @@ export function Hero() {
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: prefersReducedMotion ? 0 : 0.6, delay: prefersReducedMotion ? 0 : 0.2 }}
+          transition={{
+            duration: prefersReducedMotion ? 0 : 0.6,
+            delay: prefersReducedMotion ? 0 : 0.2,
+          }}
           className="text-lg md:text-xl text-light-textMuted dark:text-dark-textMuted mb-8 max-w-3xl mx-auto"
         >
           {t('hero.tagline')}
@@ -63,7 +65,10 @@ export function Hero() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: prefersReducedMotion ? 0 : 0.6, delay: prefersReducedMotion ? 0 : 0.4 }}
+          transition={{
+            duration: prefersReducedMotion ? 0 : 0.6,
+            delay: prefersReducedMotion ? 0 : 0.4,
+          }}
           className="flex flex-wrap gap-4 justify-center"
         >
           <button

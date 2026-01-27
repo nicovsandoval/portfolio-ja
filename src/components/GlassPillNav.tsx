@@ -11,101 +11,78 @@ interface NavItem {
   label: string;
 }
 
-interface NavConfig extends NavItem {
-  mobileLabel: string;
-  priority: number;
-}
-
 export function GlassPillNav() {
   const { t } = useTranslation();
   const { theme, toggleTheme } = useTheme();
   const { language, toggleLanguage } = useLanguage();
   const prefersReducedMotion = useReducedMotion();
-  const [activeSection, setActiveSection] = useState('hero');
+  const [activeSection, setActiveSection] = useState('about');
   const [isFabOpen, setIsFabOpen] = useState(false);
   const [isMoreOpen, setIsMoreOpen] = useState(false);
-  const [moreMenuPosition, setMoreMenuPosition] = useState({
-    top: 0,
-    right: 0,
-  });
-  const [isMobile, setIsMobile] = useState(
-    () => window.matchMedia('(max-width: 767px)').matches
+  const [isXs, setIsXs] = useState(
+    () => window.matchMedia('(max-width: 360px)').matches
   );
   const [visibleItems, setVisibleItems] = useState<NavItem[]>([]);
   const [overflowItems, setOverflowItems] = useState<NavItem[]>([]);
-  const moreButtonRef = useRef<HTMLButtonElement>(null);
   const pillRef = useRef<HTMLDivElement>(null);
   const mobileNavRef = useRef<HTMLDivElement>(null);
   const measureRef = useRef<HTMLDivElement>(null);
 
-  const navItems = useMemo<NavConfig[]>(
+  const navItems = useMemo<NavItem[]>(
     () => [
       {
         id: 'about',
         label: t('nav.about'),
-        mobileLabel: t('nav.mobile.about'),
-        priority: 2,
       },
       {
-        id: 'skills',
-        label: t('nav.skills'),
-        mobileLabel: t('nav.mobile.skills'),
-        priority: 6,
-      },
-      {
-        id: 'experience',
-        label: t('nav.experience'),
-        mobileLabel: t('nav.mobile.experience'),
-        priority: 3,
-      },
-      {
-        id: 'education',
-        label: t('nav.education'),
-        mobileLabel: t('nav.mobile.education'),
-        priority: 5,
+        id: 'journey',
+        label: t('nav.journey'),
       },
       {
         id: 'impact',
         label: t('nav.impact'),
-        mobileLabel: t('nav.mobile.impact'),
-        priority: 4,
       },
       {
         id: 'contact',
         label: t('nav.contact'),
-        mobileLabel: t('nav.mobile.contact'),
-        priority: 1,
       },
     ],
     [t]
   );
 
-  const desktopItems = useMemo(
-    () => navItems.map((item) => ({ id: item.id, label: item.label })),
-    [navItems]
-  );
-
-  const mobileItems = useMemo(
-    () => navItems.map((item) => ({ id: item.id, label: item.mobileLabel })),
-    [navItems]
-  );
-
   useEffect(() => {
-    const handleScroll = () => {
-      const sections = ['hero', ...navItems.map((item) => item.id)];
-      const scrollPosition = window.scrollY + 200;
+    const sections = navItems
+      .map((item) => document.getElementById(item.id))
+      .filter((section): section is HTMLElement => Boolean(section));
 
-      for (let i = sections.length - 1; i >= 0; i--) {
-        const section = document.getElementById(sections[i]);
-        if (section && section.offsetTop <= scrollPosition) {
-          setActiveSection(sections[i]);
-          break;
-        }
+    if (sections.length === 0) return;
+
+    const intersectionRatios = new Map<string, number>();
+    sections.forEach((section) => intersectionRatios.set(section.id, 0));
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          intersectionRatios.set(entry.target.id, entry.intersectionRatio);
+        });
+
+        const visibleEntries = [...intersectionRatios.entries()].filter(
+          ([, ratio]) => ratio > 0
+        );
+
+        if (visibleEntries.length === 0) return;
+
+        const nextActive = visibleEntries.sort((a, b) => b[1] - a[1])[0][0];
+        setActiveSection((prev) => (prev === nextActive ? prev : nextActive));
+      },
+      {
+        rootMargin: '-30% 0px -60% 0px',
+        threshold: [0, 0.1, 0.25, 0.5],
       }
-    };
+    );
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    sections.forEach((section) => observer.observe(section));
+    return () => observer.disconnect();
   }, [navItems]);
 
   useEffect(() => {
@@ -123,19 +100,19 @@ export function GlassPillNav() {
   }, [isFabOpen]);
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia('(max-width: 767px)');
+    const mediaQuery = window.matchMedia('(max-width: 360px)');
     const handleChange = (e: MediaQueryListEvent) => {
-      setIsMobile(e.matches);
+      setIsXs(e.matches);
     };
 
-    setIsMobile(mediaQuery.matches);
+    setIsXs(mediaQuery.matches);
     mediaQuery.addEventListener('change', handleChange);
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
 
   useEffect(() => {
-    if (!isMobile) {
-      setVisibleItems(desktopItems);
+    if (!isXs) {
+      setVisibleItems(navItems);
       setOverflowItems([]);
       setIsMoreOpen(false);
       return;
@@ -169,14 +146,14 @@ export function GlassPillNav() {
         measure.querySelector<HTMLElement>('[data-measure-more]')
           ?.offsetWidth ?? 0;
 
-      const totalItemsWidth = mobileItems.reduce(
+      const totalItemsWidth = navItems.reduce(
         (sum, item) => sum + (widthMap.get(item.id) ?? 0),
         0
       );
-      const totalGapWidth = gapValue * Math.max(mobileItems.length - 1, 0);
+      const totalGapWidth = gapValue * Math.max(navItems.length - 1, 0);
 
       if (totalItemsWidth + totalGapWidth <= availableWidth) {
-        setVisibleItems(mobileItems);
+        setVisibleItems(navItems);
         setOverflowItems([]);
         setIsMoreOpen(false);
         return;
@@ -184,7 +161,10 @@ export function GlassPillNav() {
 
       let usedWidth = moreWidth;
       const visibleIds = new Set<string>();
-      const prioritized = [...navItems].sort((a, b) => a.priority - b.priority);
+      const priorityOrder = ['contact', 'about', 'journey', 'impact'];
+      const prioritized = [...navItems].sort(
+        (a, b) => priorityOrder.indexOf(a.id) - priorityOrder.indexOf(b.id)
+      );
 
       prioritized.forEach((item) => {
         const width = widthMap.get(item.id);
@@ -196,14 +176,11 @@ export function GlassPillNav() {
         }
       });
 
-      const visible = mobileItems.filter((item) => visibleIds.has(item.id));
-      const overflow = mobileItems.filter((item) => !visibleIds.has(item.id));
+      const visible = navItems.filter((item) => visibleIds.has(item.id));
+      const overflow = navItems.filter((item) => !visibleIds.has(item.id));
 
       setVisibleItems(visible);
       setOverflowItems(overflow);
-      if (overflow.length === 0) {
-        setIsMoreOpen(false);
-      }
     };
 
     const resizeObserver = new ResizeObserver(() => {
@@ -216,42 +193,12 @@ export function GlassPillNav() {
     return () => {
       resizeObserver.disconnect();
     };
-  }, [isMobile, navItems, desktopItems, mobileItems]);
-
-  useEffect(() => {
-    if (!isMoreOpen) return;
-
-    const updatePosition = () => {
-      const rect = moreButtonRef.current?.getBoundingClientRect();
-      if (!rect) return;
-      const rightOffset = Math.max(12, window.innerWidth - rect.right);
-      setMoreMenuPosition({
-        top: rect.bottom + 8,
-        right: rightOffset,
-      });
-    };
-
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        setIsMoreOpen(false);
-      }
-    };
-
-    updatePosition();
-    window.addEventListener('resize', updatePosition);
-    window.addEventListener('scroll', updatePosition, true);
-    document.addEventListener('keydown', handleEscape);
-
-    return () => {
-      window.removeEventListener('resize', updatePosition);
-      window.removeEventListener('scroll', updatePosition, true);
-      document.removeEventListener('keydown', handleEscape);
-    };
-  }, [isMoreOpen]);
+  }, [isXs, navItems]);
 
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
     if (element) {
+      setActiveSection(id);
       const offset = 100;
       const elementPosition = element.offsetTop - offset;
       window.scrollTo({
@@ -263,12 +210,14 @@ export function GlassPillNav() {
 
   const handleMobileNavClick = (id: string) => {
     scrollToSection(id);
-    setIsMoreOpen(false);
   };
 
-  const mobileVisibleItems =
-    visibleItems.length > 0 ? visibleItems : mobileItems;
-  const showMoreButton = isMobile && overflowItems.length > 0;
+  const moreLabel = t('nav.more');
+  const mobileItems = visibleItems.length > 0 ? visibleItems : navItems;
+  const showMoreButton = isXs && overflowItems.length > 0;
+  const overflowHasActive = overflowItems.some(
+    (item) => item.id === activeSection
+  );
 
   const moreMenuPortal =
     isMoreOpen && showMoreButton
@@ -281,10 +230,9 @@ export function GlassPillNav() {
               onClick={() => setIsMoreOpen(false)}
             />
             <div
-              className="fixed z-[9999] glass-pill rounded-2xl p-2 min-w-[200px] border border-white/10"
+              className="fixed left-1/2 z-[9999] -translate-x-1/2 glass-pill rounded-2xl p-2 min-w-[200px] border border-white/10"
               style={{
-                top: `calc(${moreMenuPosition.top}px + env(safe-area-inset-top, 0px))`,
-                right: moreMenuPosition.right,
+                top: 'calc(64px + env(safe-area-inset-top, 0px))',
               }}
               role="menu"
             >
@@ -292,7 +240,10 @@ export function GlassPillNav() {
                 {overflowItems.map((item) => (
                   <button
                     key={item.id}
-                    onClick={() => handleMobileNavClick(item.id)}
+                    onClick={() => {
+                      handleMobileNavClick(item.id);
+                      setIsMoreOpen(false);
+                    }}
                     className={`
                     px-3 py-2 rounded-xl text-left text-sm font-medium transition-colors
                     ${
@@ -333,23 +284,23 @@ export function GlassPillNav() {
         >
           <div
             ref={pillRef}
-            className="glass-pill glass-highlight rounded-full px-4 py-2 max-[360px]:px-3 max-[320px]:px-2 sm:px-3 sm:py-2.5 flex items-center gap-3 max-[360px]:gap-2 max-[320px]:gap-1 w-[min(94vw,720px)] md:w-fit md:max-w-[900px] overflow-hidden"
+            className="glass-pill glass-highlight rounded-full px-4 py-2 max-[360px]:px-3 max-[320px]:px-2 sm:px-3 sm:py-2.5 flex items-center gap-3 max-[360px]:gap-2 max-[320px]:gap-1 w-[min(94vw,560px)] md:w-fit md:max-w-[900px] overflow-hidden"
           >
             {/* Mobile Navigation */}
             <div
               ref={mobileNavRef}
-              className="flex items-center justify-center gap-2 max-[360px]:gap-1 flex-nowrap md:hidden"
+              className="flex items-center justify-evenly gap-2 max-[360px]:gap-1.5 max-[320px]:gap-1 flex-nowrap md:hidden w-full"
             >
-              {mobileVisibleItems.map((item) => (
+              {mobileItems.map((item) => (
                 <button
                   key={item.id}
                   onClick={() => handleMobileNavClick(item.id)}
                   className={`
-                    relative flex-shrink-0 px-3 py-1.5 max-[360px]:px-2 max-[320px]:px-1.5 max-[360px]:py-1.5 rounded-full text-sm max-[360px]:tracking-tight font-semibold transition-all whitespace-nowrap
+                    relative flex-shrink-0 px-2.5 py-2 max-[360px]:px-2 max-[320px]:px-1.5 max-[360px]:py-1.5 rounded-full text-sm font-semibold transition-all whitespace-nowrap
                     ${
                       activeSection === item.id
                         ? 'text-white'
-                        : 'text-light-text dark:text-dark-text hover:bg-light-border/30 dark:hover:bg-dark-border/30'
+                        : 'text-light-text dark:text-dark-text hover:text-light-text dark:hover:text-dark-text'
                     }
                   `}
                   aria-label={t('aria.scrollToSection', {
@@ -359,7 +310,7 @@ export function GlassPillNav() {
                   {activeSection === item.id && (
                     <motion.div
                       layoutId="activeSectionMobile"
-                      className="absolute inset-0 bg-light-primary dark:bg-dark-primary rounded-full -z-10"
+                      className="absolute inset-0 bg-light-primary/95 dark:bg-dark-primary/90 rounded-full -z-10 shadow-sm"
                       transition={{
                         type: 'spring',
                         stiffness: 380,
@@ -370,27 +321,25 @@ export function GlassPillNav() {
                   {item.label}
                 </button>
               ))}
-
               {showMoreButton && (
                 <button
-                  ref={moreButtonRef}
                   onClick={() => setIsMoreOpen((prev) => !prev)}
                   className={`
-                    relative flex-shrink-0 px-3 py-1.5 max-[360px]:px-2 max-[320px]:px-1.5 max-[360px]:py-1.5 rounded-full text-sm max-[360px]:tracking-tight font-semibold transition-all whitespace-nowrap
+                    relative flex-shrink-0 px-2.5 py-2 max-[360px]:px-2 max-[320px]:px-1.5 max-[360px]:py-1.5 rounded-full text-sm font-semibold transition-all whitespace-nowrap
                     ${
-                      isMoreOpen
+                      isMoreOpen || overflowHasActive
                         ? 'text-white'
-                        : 'text-light-text dark:text-dark-text hover:bg-light-border/30 dark:hover:bg-dark-border/30'
+                        : 'text-light-text dark:text-dark-text hover:text-light-text dark:hover:text-dark-text'
                     }
                   `}
                   aria-label={t('aria.moreNavigation')}
                   aria-expanded={isMoreOpen}
                   aria-haspopup="menu"
                 >
-                  {isMoreOpen && (
+                  {(isMoreOpen || overflowHasActive) && (
                     <motion.div
                       layoutId="moreMenuToggle"
-                      className="absolute inset-0 bg-light-primary dark:bg-dark-primary rounded-full -z-10"
+                      className="absolute inset-0 bg-light-primary/95 dark:bg-dark-primary/90 rounded-full -z-10 shadow-sm"
                       transition={{
                         type: 'spring',
                         stiffness: 380,
@@ -398,7 +347,7 @@ export function GlassPillNav() {
                       }}
                     />
                   )}
-                  {t('nav.mobile.more')}
+                  {moreLabel}
                 </button>
               )}
             </div>
@@ -407,29 +356,29 @@ export function GlassPillNav() {
               ref={measureRef}
               className="absolute -left-[9999px] top-0 opacity-0 pointer-events-none md:hidden"
             >
-              <div className="flex items-center gap-3 max-[360px]:gap-2 max-[320px]:gap-1">
-                {mobileItems.map((item) => (
+              <div className="flex items-center gap-2 max-[360px]:gap-1.5 max-[320px]:gap-1">
+                {navItems.map((item) => (
                   <span
                     key={item.id}
                     data-measure-id={item.id}
-                    className="px-3 py-1.5 max-[360px]:px-2 max-[320px]:px-1.5 max-[360px]:py-1.5 rounded-full text-sm max-[360px]:tracking-tight font-semibold whitespace-nowrap"
+                    className="px-2.5 py-2 max-[360px]:px-2 max-[320px]:px-1.5 max-[360px]:py-1.5 rounded-full text-sm font-semibold whitespace-nowrap"
                   >
                     {item.label}
                   </span>
                 ))}
                 <span
                   data-measure-more
-                  className="px-3 py-1.5 max-[360px]:px-2 max-[320px]:px-1.5 max-[360px]:py-1.5 rounded-full text-sm max-[360px]:tracking-tight font-semibold whitespace-nowrap"
+                  className="px-2.5 py-2 max-[360px]:px-2 max-[320px]:px-1.5 max-[360px]:py-1.5 rounded-full text-sm font-semibold whitespace-nowrap"
                 >
-                  {t('nav.mobile.more')}
+                  {moreLabel}
                 </span>
               </div>
             </div>
 
             {/* Desktop Navigation items */}
             <div className="hidden md:flex flex-1 sm:flex-shrink min-w-0 overflow-x-auto no-scrollbar fade-edges">
-              <div className="flex items-center gap-0.5 sm:gap-1 flex-nowrap pl-2 pr-4">
-                {desktopItems.map((item) => (
+              <div className="flex items-center justify-center gap-1 flex-nowrap px-3">
+                {navItems.map((item) => (
                   <button
                     key={item.id}
                     onClick={() => scrollToSection(item.id)}
@@ -438,7 +387,7 @@ export function GlassPillNav() {
                     ${
                       activeSection === item.id
                         ? 'text-white'
-                        : 'text-light-text dark:text-dark-text hover:bg-light-border/30 dark:hover:bg-dark-border/30'
+                        : 'text-light-text dark:text-dark-text hover:text-light-text dark:hover:text-dark-text'
                     }
                   `}
                     aria-label={t('aria.scrollToSection', {
@@ -448,7 +397,7 @@ export function GlassPillNav() {
                     {activeSection === item.id && (
                       <motion.div
                         layoutId="activeSection"
-                        className="absolute inset-0 bg-light-primary dark:bg-dark-primary rounded-full -z-10"
+                        className="absolute inset-0 bg-light-primary/95 dark:bg-dark-primary/90 rounded-full -z-10 shadow-sm"
                         transition={{
                           type: 'spring',
                           stiffness: 380,

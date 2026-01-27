@@ -9,7 +9,7 @@ export function About() {
   const highlights = t('about.highlights', { returnObjects: true }) as string[];
 
   return (
-    <section id="about" className="py-20 px-4">
+    <section className="py-20 px-4">
       <div className="max-w-4xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

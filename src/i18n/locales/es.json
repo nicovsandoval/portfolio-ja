@@ -1,20 +1,10 @@
 {
   "nav": {
     "about": "Perfil",
-    "skills": "Habilidades",
-    "experience": "Experiencia",
-    "education": "Educación",
+    "journey": "Trayectoria",
     "impact": "Impacto",
-    "contact": "Contáctame",
-    "mobile": {
-      "about": "Perfil",
-      "experience": "Experiencia",
-      "impact": "Impacto",
-      "contact": "Contacto",
-      "skills": "Habilidades",
-      "education": "Educación",
-      "more": "Más"
-    }
+    "contact": "Contacto",
+    "more": "Más"
   },
   "hero": {
     "titleName": "Julio César Álvarez Gallo",

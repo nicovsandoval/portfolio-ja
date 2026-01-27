@@ -13,13 +13,21 @@ function App() {
   return (
     <div className="min-h-screen bg-light-bg dark:bg-dark-bg">
       <GlassPillNav />
-      <Hero />
-      <About />
-      <Skills />
-      <Experience />
-      <Education />
-      <Impact />
-      <Contact />
+      <section id="about" className="scroll-mt-28">
+        <Hero />
+        <About />
+      </section>
+      <section id="journey" className="scroll-mt-28">
+        <Skills />
+        <Experience />
+        <Education />
+      </section>
+      <section id="impact" className="scroll-mt-28">
+        <Impact />
+      </section>
+      <section id="contact" className="scroll-mt-28">
+        <Contact />
+      </section>
       <Footer />
       {import.meta.env.DEV && <ViewportBadge />}
     </div>
