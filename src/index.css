@@ -30,6 +30,8 @@
 
 html {
   scroll-behavior: smooth;
+  background-color: var(--bg);
+  min-height: 100%;
 }
 
 body {
@@ -40,9 +42,14 @@ body {
     sans-serif;
   background-color: var(--bg);
   color: var(--text);
+  min-height: 100dvh;
   transition:
     background-color 0.3s ease,
     color 0.3s ease;
+}
+
+#root {
+  min-height: 100dvh;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -109,20 +116,12 @@ body {
 
 /* Hidden scrollbar for horizontal navigation scroll */
 .no-scrollbar {
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 .no-scrollbar::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Opera */
-}
-
-/* iOS safe area support */
-@supports (padding: max(0px)) {
-  body {
-    padding-top: env(safe-area-inset-top);
-    padding-bottom: env(safe-area-inset-bottom);
-  }
+  display: none;
 }
 
 /* Fade edges for horizontal scroll */

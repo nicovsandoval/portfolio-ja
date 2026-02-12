@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { Dispatch, MutableRefObject, SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -55,6 +55,15 @@ export function GlassPillNav() {
     height: 0,
     visible: false,
   });
+
+  const indicatorTransition = prefersReducedMotion
+    ? { duration: 0 }
+    : {
+        type: 'spring' as const,
+        stiffness: 420,
+        damping: 36,
+        mass: 0.42,
+      };
 
   const navItems = useMemo<NavItem[]>(
     () => [
@@ -114,19 +123,24 @@ export function GlassPillNav() {
       const containerRect = container.getBoundingClientRect();
       const targetRect = target.getBoundingClientRect();
       const next = {
-        x: targetRect.left - containerRect.left,
-        y: targetRect.top - containerRect.top,
-        width: targetRect.width,
-        height: targetRect.height,
+        x: Math.round((targetRect.left - containerRect.left) * 10) / 10,
+        y: Math.round((targetRect.top - containerRect.top) * 10) / 10,
+        width: Math.round(targetRect.width * 10) / 10,
+        height: Math.round(targetRect.height * 10) / 10,
         visible: true,
       };
 
       setIndicator((prev) => {
+        const diffX = Math.abs(prev.x - next.x);
+        const diffY = Math.abs(prev.y - next.y);
+        const diffW = Math.abs(prev.width - next.width);
+        const diffH = Math.abs(prev.height - next.height);
+
         if (
-          prev.x === next.x &&
-          prev.y === next.y &&
-          prev.width === next.width &&
-          prev.height === next.height &&
+          diffX < 0.2 &&
+          diffY < 0.2 &&
+          diffW < 0.2 &&
+          diffH < 0.2 &&
           prev.visible === next.visible
         ) {
           return prev;
@@ -158,11 +172,25 @@ export function GlassPillNav() {
 
         if (visibleEntries.length === 0) return;
 
-        const nextActive = visibleEntries.sort((a, b) => b[1] - a[1])[0][0];
-        setActiveSection((prev) => (prev === nextActive ? prev : nextActive));
+        const [candidateId, candidateRatio] = visibleEntries.sort(
+          (a, b) => b[1] - a[1]
+        )[0];
+        const currentId = activeSectionRef.current;
+        const currentRatio = intersectionRatios.get(currentId) ?? 0;
+
+        const canSwitch =
+          candidateId === currentId ||
+          candidateRatio >= currentRatio + 0.06 ||
+          currentRatio < 0.12;
+
+        if (canSwitch) {
+          setActiveSection((prev) =>
+            prev === candidateId ? prev : candidateId
+          );
+        }
       },
       {
-        rootMargin: '-30% 0px -60% 0px',
+        rootMargin: '-22% 0px -58% 0px',
         threshold: [0, 0.1, 0.25, 0.5],
       }
     );
@@ -196,7 +224,7 @@ export function GlassPillNav() {
     return () => mediaQuery.removeEventListener('change', handleChange);
   }, []);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const container = desktopNavRef.current;
     if (!container) return;
     scheduleIndicatorMeasure(
@@ -207,7 +235,7 @@ export function GlassPillNav() {
     );
   }, [activeSection, navItems]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const container = mobileNavRef.current;
     if (!container) return;
     const activeId =
@@ -220,7 +248,7 @@ export function GlassPillNav() {
     );
   }, [activeSection, overflowHasActive, showMoreButton, visibleItems]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const desktopContainer = desktopNavRef.current;
     const mobileContainer = mobileNavRef.current;
 
@@ -260,17 +288,6 @@ export function GlassPillNav() {
       window.removeEventListener('resize', handleResize);
     };
   }, [overflowHasActive, showMoreButton]);
-
-  useEffect(() => {
-    return () => {
-      if (desktopMeasureFrame.current) {
-        cancelAnimationFrame(desktopMeasureFrame.current);
-      }
-      if (mobileMeasureFrame.current) {
-        cancelAnimationFrame(mobileMeasureFrame.current);
-      }
-    };
-  }, []);
 
   useEffect(() => {
     if (!isXs) {
@@ -447,14 +464,17 @@ export function GlassPillNav() {
               className="relative flex items-center justify-evenly gap-2 max-[360px]:gap-1.5 max-[320px]:gap-1 flex-nowrap md:hidden w-full"
             >
               {mobileIndicator.visible && (
-                <div
+                <motion.div
                   aria-hidden
                   className="nav-active-pill absolute left-0 top-0 -z-10 rounded-full bg-light-primary/95 dark:bg-dark-primary/90 shadow-sm pointer-events-none"
-                  style={{
-                    transform: `translate3d(${mobileIndicator.x}px, ${mobileIndicator.y}px, 0)`,
+                  initial={false}
+                  animate={{
+                    x: mobileIndicator.x,
+                    y: mobileIndicator.y,
                     width: mobileIndicator.width,
                     height: mobileIndicator.height,
                   }}
+                  transition={indicatorTransition}
                 />
               )}
               {mobileItems.map((item) => (
@@ -528,14 +548,17 @@ export function GlassPillNav() {
                 className="relative flex items-center justify-center gap-1 flex-nowrap px-3"
               >
                 {desktopIndicator.visible && (
-                  <div
+                  <motion.div
                     aria-hidden
                     className="nav-active-pill absolute left-0 top-0 -z-10 rounded-full bg-light-primary/95 dark:bg-dark-primary/90 shadow-sm pointer-events-none"
-                    style={{
-                      transform: `translate3d(${desktopIndicator.x}px, ${desktopIndicator.y}px, 0)`,
+                    initial={false}
+                    animate={{
+                      x: desktopIndicator.x,
+                      y: desktopIndicator.y,
                       width: desktopIndicator.width,
                       height: desktopIndicator.height,
                     }}
+                    transition={indicatorTransition}
                   />
                 )}
                 {navItems.map((item) => (
@@ -701,7 +724,7 @@ export function GlassPillNav() {
           }}
           className={`
             fixed right-4 z-50 w-14 h-14 rounded-full glass-pill shadow-lg
-            flex items-center justify-center transition-transform active:scale-95
+            flex items-center justify-center transition-transform duration-200 active:scale-95
             ${isFabOpen ? 'rotate-45' : ''}
           `}
           aria-label="Abrir opciones"

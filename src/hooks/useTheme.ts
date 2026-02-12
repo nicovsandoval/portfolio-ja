@@ -1,6 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { applyThemeToSafari } from '../utils/safariTheme';
 
 type Theme = 'light' | 'dark';
+type ThemeMode = Theme | 'system';
 
 const STORAGE_KEY = 'theme-preference';
 
@@ -10,46 +12,55 @@ function getSystemTheme(): Theme {
     : 'light';
 }
 
-function getInitialTheme(): { theme: Theme; isManual: boolean } {
+function getInitialMode(): ThemeMode {
   const stored = localStorage.getItem(STORAGE_KEY);
-  if (stored && (stored === 'light' || stored === 'dark')) {
-    return { theme: stored, isManual: true };
+
+  if (stored === 'light' || stored === 'dark' || stored === 'system') {
+    return stored;
   }
-  return { theme: getSystemTheme(), isManual: false };
+
+  return 'system';
 }
 
 export function useTheme() {
-  const [state, setState] = useState(getInitialTheme);
+  const [mode, setModeState] = useState<ThemeMode>(getInitialMode);
+  const [systemTheme, setSystemTheme] = useState<Theme>(getSystemTheme);
+
+  const theme = useMemo<Theme>(
+    () => (mode === 'system' ? systemTheme : mode),
+    [mode, systemTheme]
+  );
 
   useEffect(() => {
-    const root = document.documentElement;
-    if (state.theme === 'dark') {
-      root.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
-    }
-  }, [state.theme]);
-
-  useEffect(() => {
-    if (state.isManual) return;
-
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const handleChange = (e: MediaQueryListEvent) => {
-      setState({ theme: e.matches ? 'dark' : 'light', isManual: false });
+      setSystemTheme(e.matches ? 'dark' : 'light');
     };
 
     mediaQuery.addEventListener('change', handleChange);
     return () => mediaQuery.removeEventListener('change', handleChange);
-  }, [state.isManual]);
+  }, []);
 
-  const setTheme = (newTheme: Theme) => {
-    setState({ theme: newTheme, isManual: true });
-    localStorage.setItem(STORAGE_KEY, newTheme);
+  useEffect(() => {
+    const root = document.documentElement;
+    root.classList.toggle('dark', theme === 'dark');
+    root.style.colorScheme = theme;
+
+    applyThemeToSafari(theme);
+  }, [theme]);
+
+  const setMode = (nextMode: ThemeMode) => {
+    setModeState(nextMode);
+    localStorage.setItem(STORAGE_KEY, nextMode);
+  };
+
+  const setTheme = (nextTheme: Theme) => {
+    setMode(nextTheme);
   };
 
   const toggleTheme = () => {
-    setTheme(state.theme === 'light' ? 'dark' : 'light');
+    setTheme(theme === 'light' ? 'dark' : 'light');
   };
 
-  return { theme: state.theme, setTheme, toggleTheme };
+  return { theme, mode, setMode, setTheme, toggleTheme };
 }
